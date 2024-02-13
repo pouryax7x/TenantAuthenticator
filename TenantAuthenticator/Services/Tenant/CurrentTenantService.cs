@@ -1,24 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TenantAuthenticator.Entity;
+﻿using TenantAuthenticator.Entity;
 using TenantAuthenticator.Interface;
 
 namespace TenantAuthenticator.Services.Tenant;
 public class CurrentTenantService : ICurrentTenantService
 {
-    public List<ResourcePromiss> ResourcePermissions { get; set; } = new List<ResourcePromiss>();
+    public List<ResourcePromiss> ResourcePermissions { get; set; } = [];
     private Guid _tenantId { get; set; }
     private static Guid TenantIdStatic;
-    public Guid TenantId
-    {
-        get
-        {
-            return _tenantId;
-        }
-    }
+    public Guid TenantId => _tenantId;
     public static Guid GetTenantId()
     {
         return TenantIdStatic;

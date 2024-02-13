@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TenantAuthenticator.Entity;
+﻿using TenantAuthenticator.Entity;
 
 namespace TenantAuthenticator.Interface;
 public interface ICurrentTenantService
 {
-    private static Guid TenantIdStatic;
+    private static readonly Guid TenantIdStatic;
 
     public Guid TenantId { get; }
 

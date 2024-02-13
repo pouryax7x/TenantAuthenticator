@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TenantAuthenticator.Entity.Tenant;
 using TenantAuthenticator.Interface;
 
@@ -39,99 +34,99 @@ public partial class TenantContext : DbContext, ITenantContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        modelBuilder.Entity<ResourcePermission>(entity =>
+        _ = modelBuilder.Entity<ResourcePermission>(entity =>
         {
-            entity.ToTable("ResourcePermission");
+            _ = entity.ToTable("ResourcePermission");
 
-            entity.Property(e => e.EditableFields).IsUnicode(false);
-            entity.Property(e => e.ResourceName)
+            _ = entity.Property(e => e.EditableFields).IsUnicode(false);
+            _ = entity.Property(e => e.ResourceName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Tenant).WithMany(p => p.ResourcePermissions)
+            _ = entity.HasOne(d => d.Tenant).WithMany(p => p.ResourcePermissions)
                 .HasForeignKey(d => d.TenantId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ResourcePermission_Tenant");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        _ = modelBuilder.Entity<Role>(entity =>
         {
-            entity.ToTable("Role");
+            _ = entity.ToTable("Role");
 
-            entity.Property(e => e.Name)
+            _ = entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Tenant).WithMany(p => p.Roles)
+            _ = entity.HasOne(d => d.Tenant).WithMany(p => p.Roles)
                 .HasForeignKey(d => d.TenantId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Role_Tenant");
         });
 
-        modelBuilder.Entity<RoleResourcePermission>(entity =>
+        _ = modelBuilder.Entity<RoleResourcePermission>(entity =>
         {
-            entity.ToTable("Role_ResourcePermission");
+            _ = entity.ToTable("Role_ResourcePermission");
 
-            entity.Property(e => e.ExpireDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.ExpireDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.ResourcePermission).WithMany(p => p.RoleResourcePermissions)
+            _ = entity.HasOne(d => d.ResourcePermission).WithMany(p => p.RoleResourcePermissions)
                 .HasForeignKey(d => d.ResourcePermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Role_ResourcePermission_ResourcePermission1");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.RoleResourcePermissions)
+            _ = entity.HasOne(d => d.Role).WithMany(p => p.RoleResourcePermissions)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Role_ResourcePermission_Role1");
         });
 
-        modelBuilder.Entity<RoleSystemPermission>(entity =>
+        _ = modelBuilder.Entity<RoleSystemPermission>(entity =>
         {
-            entity.ToTable("Role_SystemPermission");
+            _ = entity.ToTable("Role_SystemPermission");
 
-            entity.Property(e => e.ExpireDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.ExpireDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.RoleSystemPermissions)
+            _ = entity.HasOne(d => d.Role).WithMany(p => p.RoleSystemPermissions)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Role_SystemPermission_Role");
 
-            entity.HasOne(d => d.SystemPermission).WithMany(p => p.RoleSystemPermissions)
+            _ = entity.HasOne(d => d.SystemPermission).WithMany(p => p.RoleSystemPermissions)
                 .HasForeignKey(d => d.SystemPermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Role_SystemPermission_SystemPermission");
         });
 
-        modelBuilder.Entity<SystemPermission>(entity =>
+        _ = modelBuilder.Entity<SystemPermission>(entity =>
         {
-            entity.ToTable("SystemPermission");
+            _ = entity.ToTable("SystemPermission");
 
-            entity.Property(e => e.Name)
+            _ = entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Tenant>(entity =>
+        _ = modelBuilder.Entity<Tenant>(entity =>
         {
-            entity.ToTable("Tenant");
+            _ = entity.ToTable("Tenant");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Password).HasMaxLength(50);
-            entity.Property(e => e.Username).HasMaxLength(50);
+            _ = entity.Property(e => e.Id).ValueGeneratedNever();
+            _ = entity.Property(e => e.Password).HasMaxLength(50);
+            _ = entity.Property(e => e.Username).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<TenantRole>(entity =>
+        _ = modelBuilder.Entity<TenantRole>(entity =>
         {
-            entity.ToTable("Tenant-Role");
+            _ = entity.ToTable("Tenant-Role");
 
-            entity.Property(e => e.ExpireDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.ExpireDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.TenantRoles)
+            _ = entity.HasOne(d => d.Role).WithMany(p => p.TenantRoles)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Tenant-Role_Role");
 
-            entity.HasOne(d => d.TargetTenant).WithMany(p => p.TenantRoles)
+            _ = entity.HasOne(d => d.TargetTenant).WithMany(p => p.TenantRoles)
                 .HasForeignKey(d => d.TargetTenantId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Tenant-Role_Tenant");

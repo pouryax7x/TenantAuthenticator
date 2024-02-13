@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using TenantAuthenticator.Entity;
 using TenantAuthenticator.Interface;
-using Microsoft.AspNetCore.Builder;
-using System.Security.Claims;
 namespace TenantAuthenticator.Middleware;
 public class CurrentTenantMiddleware
 {
@@ -19,11 +19,11 @@ public class CurrentTenantMiddleware
         {
             tenantId = Guid.Parse(context.User?.FindFirstValue("TenantId"));
             currentTenantService.SetTenantId(tenantId);
-            var roleResourcePermissionIds = context.User?.Claims.Where(x => x.Type == "RPI").Select(y => y.Value).ToList();
-            var RoleResourcePermissions = tenantContext.ResourcePermissions.Where(x => roleResourcePermissionIds.Any(z => z == x.Id.ToString())).ToList();
-            foreach (var roleResourcePermission in RoleResourcePermissions)
+            List<string>? roleResourcePermissionIds = context.User?.Claims.Where(x => x.Type == "RPI").Select(y => y.Value).ToList();
+            List<Entity.Tenant.ResourcePermission> RoleResourcePermissions = tenantContext.ResourcePermissions.Where(x => roleResourcePermissionIds.Any(z => z == x.Id.ToString())).ToList();
+            foreach (Entity.Tenant.ResourcePermission? roleResourcePermission in RoleResourcePermissions)
             {
-                var editableFields = roleResourcePermission.EditableFields.Split(',').ToList();
+                List<string> editableFields = roleResourcePermission.EditableFields.Split(',').ToList();
                 currentTenantService.ResourcePermissions.Add(new ResourcePromiss
                 {
                     EditableFields = editableFields,

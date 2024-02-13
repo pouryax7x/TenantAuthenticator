@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TenantAuthenticator.Services.Common;
 internal static class ObjectHelper
 {
     private static readonly ConcurrentDictionary<string, PropertyInfo?> CachedObjectProperties =
-        new ConcurrentDictionary<string, PropertyInfo?>();
+        new();
 
     public static void TrySetProperty<TObject, TValue>(
         TObject obj,
@@ -28,35 +23,29 @@ internal static class ObjectHelper
         Func<TObject, TValue> valueFactory,
         params Type[]? ignoreAttributeTypes)
     {
-        var cacheKey = $"{obj?.GetType().FullName}-" +
+        string cacheKey = $"{obj?.GetType().FullName}-" +
                        $"{propertySelector}-" +
                        $"{(ignoreAttributeTypes != null ? "-" + string.Join("-", ignoreAttributeTypes.Select(x => x.FullName)) : "")}";
 
-        var property = CachedObjectProperties.GetOrAdd(cacheKey, _ =>
+        PropertyInfo? property = CachedObjectProperties.GetOrAdd(cacheKey, _ =>
         {
             if (propertySelector.Body.NodeType != ExpressionType.MemberAccess)
             {
                 return null;
             }
 
-            var memberExpression = propertySelector.Body as MemberExpression;
+            MemberExpression? memberExpression = propertySelector.Body as MemberExpression;
 
-            var propertyInfo = obj?.GetType().GetProperties().FirstOrDefault(x =>
+            PropertyInfo? propertyInfo = obj?.GetType().GetProperties().FirstOrDefault(x =>
                 x.Name == memberExpression?.Member.Name &&
                 x.GetSetMethod(true) != null);
 
-            if (propertyInfo == null)
-            {
-                return null;
-            }
-
-            if (ignoreAttributeTypes != null &&
-                ignoreAttributeTypes.Any(ignoreAttribute => propertyInfo.IsDefined(ignoreAttribute, true)))
-            {
-                return null;
-            }
-
-            return propertyInfo;
+            return propertyInfo == null
+                ? null
+                : ignoreAttributeTypes != null &&
+                ignoreAttributeTypes.Any(ignoreAttribute => propertyInfo.IsDefined(ignoreAttribute, true))
+                ? null
+                : propertyInfo;
         });
 
         property?.SetValue(obj, valueFactory(obj));

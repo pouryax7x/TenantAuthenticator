@@ -11,7 +11,7 @@ public abstract class BaseEntity
         {
             return;
         }
-        var tenantId = CurrentTenantService.GetTenantId();
+        Guid tenantId = CurrentTenantService.GetTenantId();
         ObjectHelper.TrySetProperty(entity, x => x.TenantId, () => tenantId);
     }
 }

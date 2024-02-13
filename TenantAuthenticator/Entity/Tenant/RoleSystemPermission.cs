@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TenantAuthenticator.Entity.Tenant;
+﻿namespace TenantAuthenticator.Entity.Tenant;
 
 public partial class RoleSystemPermission
 {

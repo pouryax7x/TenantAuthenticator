@@ -10,8 +10,8 @@ internal static class TenantAuthentication
     internal static IServiceCollection AddTenantAuthentication(this IServiceCollection services,
                 IConfiguration Configuration)
     {
-        var key = Encoding.ASCII.GetBytes(Configuration.GetSection("AuthKey").Value);
-        services.AddAuthentication(options =>
+        byte[] key = Encoding.ASCII.GetBytes(Configuration.GetSection("AuthKey").Value);
+        _ = services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

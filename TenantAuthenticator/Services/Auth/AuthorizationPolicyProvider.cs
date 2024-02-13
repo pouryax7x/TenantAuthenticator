@@ -13,9 +13,9 @@ public class AuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 
         //return base.GetPolicyAsync(policyName);
 
-        var systemPermissionIds = policyName.Split(',');
+        string[] systemPermissionIds = policyName.Split(',');
 
-        var policy = new AuthorizationPolicyBuilder()
+        AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
             .RequireClaim("SPID", systemPermissionIds)
             .Build();
 

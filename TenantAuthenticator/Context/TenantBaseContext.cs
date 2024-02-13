@@ -1,19 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 using System.Reflection;
 using TenantAuthenticator.Interface;
-using LinqKit;
 namespace TenantAuthenticator.Context;
 public abstract class TenantBaseContext : DbContext
 {
-    Dictionary<string, bool> IsAbleToRead = new Dictionary<string, bool>();
+    private readonly Dictionary<string, bool> IsAbleToRead = [];
     public ICurrentTenantService _currentTenantService { get; }
 
     public TenantBaseContext(ICurrentTenantService currentTenantService)
     {
         _currentTenantService = currentTenantService;
-        foreach (var resourcePermission in _currentTenantService.ResourcePermissions)
+        foreach (Entity.ResourcePromiss resourcePermission in _currentTenantService.ResourcePermissions)
         {
             AddUnique(IsAbleToRead, resourcePermission.ResourceName, resourcePermission.IsAbleToRead);
         };
@@ -22,7 +22,7 @@ public abstract class TenantBaseContext : DbContext
         : base(options)
     {
         _currentTenantService = currentTenantService;
-        foreach (var resourcePermission in _currentTenantService.ResourcePermissions)
+        foreach (Entity.ResourcePromiss resourcePermission in _currentTenantService.ResourcePermissions)
         {
             AddUnique(IsAbleToRead, resourcePermission.ResourceName, resourcePermission.IsAbleToRead);
         }
@@ -37,13 +37,13 @@ public abstract class TenantBaseContext : DbContext
 
     private void PreventFromDelete()
     {
-        var AddedEntry = ChangeTracker.Entries()
+        List<EntityEntry> AddedEntry = ChangeTracker.Entries()
           .Where(e => e.State == EntityState.Deleted)
           .ToList();
 
-        foreach (var entry in AddedEntry)
+        foreach (EntityEntry? entry in AddedEntry)
         {
-            var InsertPermitRefused = _currentTenantService.ResourcePermissions.Any(x => x.ResourceName == GetTableName(entry) && x.IsAbleToDelete == false);
+            bool InsertPermitRefused = _currentTenantService.ResourcePermissions.Any(x => x.ResourceName == GetTableName(entry) && x.IsAbleToDelete == false);
 
             if (InsertPermitRefused)
             {
@@ -53,9 +53,9 @@ public abstract class TenantBaseContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        foreach (Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
         {
-            var entityTypeClrType = entityType.ClrType;
+            Type entityTypeClrType = entityType.ClrType;
 
             // Find and call the ConfigureGlobalFilters method using reflection
             MethodInfo method = GetType().GetMethod("ConfigureGlobalFilters", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -63,7 +63,7 @@ public abstract class TenantBaseContext : DbContext
             if (method != null)
             {
                 MethodInfo genericMethod = method.MakeGenericMethod(entityTypeClrType);
-                genericMethod.Invoke(this, new object[] { modelBuilder });
+                _ = genericMethod.Invoke(this, new object[] { modelBuilder });
             }
             else
             {
@@ -73,13 +73,13 @@ public abstract class TenantBaseContext : DbContext
     }
     private void PreventFromInsert()
     {
-        var AddedEntry = ChangeTracker.Entries()
+        List<EntityEntry> AddedEntry = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Added)
             .ToList();
 
-        foreach (var entry in AddedEntry)
+        foreach (EntityEntry? entry in AddedEntry)
         {
-            var InsertPermitRefused = _currentTenantService.ResourcePermissions.Any(x => x.ResourceName == GetTableName(entry) && x.IsAbleToInsert == false);
+            bool InsertPermitRefused = _currentTenantService.ResourcePermissions.Any(x => x.ResourceName == GetTableName(entry) && x.IsAbleToInsert == false);
 
             if (InsertPermitRefused)
             {
@@ -99,8 +99,8 @@ public abstract class TenantBaseContext : DbContext
             multiTenantFilter = e => EF.Property<Guid>(e, "TenantId") == _currentTenantService.TenantId;
         }
         //// Create a lambda expression from the combined expression
-        var lambda = selectFilter.And(multiTenantFilter);
-        modelBuilder.Entity<TEntity>().HasQueryFilter(lambda);
+        Expression<Func<TEntity, bool>> lambda = selectFilter.And(multiTenantFilter);
+        _ = modelBuilder.Entity<TEntity>().HasQueryFilter(lambda);
 
     }
 
@@ -108,19 +108,19 @@ public abstract class TenantBaseContext : DbContext
 
     private void UpdateModifiedProperties()
     {
-        var modifiedEntries = ChangeTracker.Entries()
+        List<EntityEntry> modifiedEntries = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Modified)
             .ToList();
 
-        foreach (var entry in modifiedEntries)
+        foreach (EntityEntry? entry in modifiedEntries)
         {
-            var propertyNames = new string[] { "Username" };
+            string[] propertyNames = new string[] { "Username" };
 
             if (GetTableName(entry) == "Tenant")
             {
-                foreach (var property in entry.OriginalValues.Properties)
+                foreach (Microsoft.EntityFrameworkCore.Metadata.IProperty property in entry.OriginalValues.Properties)
                 {
-                    var propertyName = property.Name;
+                    string propertyName = property.Name;
 
                     if (!propertyNames.Contains(propertyName))
                     {
@@ -131,9 +131,9 @@ public abstract class TenantBaseContext : DbContext
         }
     }
 
-    private static string GetTableName(EntityEntry entry)
+    private static string? GetTableName(EntityEntry entry)
     {
-        var entityType = entry.Metadata;
+        Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType = entry.Metadata;
         return entityType?.GetTableName();
     }
 
