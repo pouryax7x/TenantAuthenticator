@@ -30,6 +30,7 @@ public class CurrentTenantMiddleware
                     IsAbleToDelete = roleResourcePermission.CanDelete,
                     IsAbleToInsert = roleResourcePermission.CanInsert,
                     IsAbleToRead = roleResourcePermission.CanSelect,
+                    IsAbleToUpdate = roleResourcePermission.CanUpdate,
                     ResourceName = roleResourcePermission.ResourceName
                 });
             }

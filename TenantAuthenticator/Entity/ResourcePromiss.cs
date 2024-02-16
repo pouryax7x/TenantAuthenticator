@@ -5,5 +5,6 @@ public class ResourcePromiss
     public bool IsAbleToDelete { get; set; }
     public bool IsAbleToInsert { get; set; }
     public bool IsAbleToRead { get; set; }
+    public bool IsAbleToUpdate { get; set; }
     public required List<string> EditableFields { get; set; }
 }

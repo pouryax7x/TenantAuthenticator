@@ -114,10 +114,12 @@ public abstract class TenantBaseContext : DbContext
 
         foreach (EntityEntry? entry in modifiedEntries)
         {
-            string[] propertyNames = new string[] { "Username" };
 
-            if (GetTableName(entry) == "Tenant")
+            if (_currentTenantService.ResourcePermissions.Any(x => x.ResourceName == GetTableName(entry) && x.IsAbleToUpdate))
             {
+                string[] propertyNames = _currentTenantService.ResourcePermissions.Where(x => x.ResourceName == GetTableName(entry) && x.IsAbleToUpdate)
+                    .SelectMany(x => x.EditableFields)
+                    .ToArray();
                 foreach (Microsoft.EntityFrameworkCore.Metadata.IProperty property in entry.OriginalValues.Properties)
                 {
                     string propertyName = property.Name;
